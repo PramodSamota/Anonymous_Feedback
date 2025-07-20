@@ -4,10 +4,12 @@ import UserModel from "@/models/User.model";
 export async function POST(req: Request) {
   await dbConnect();
   try {
-    const { username, verifyCode } = await req.json();
-
+    const { username, code: verifyCode } = await req.json();
+    // console.log("req.json", verifyCode);
+    // console.log("req.json", username);
     const user = await UserModel.findOne({ username });
 
+    // console.log("user", user);
     if (!user) {
       return Response.json(
         {
@@ -34,7 +36,7 @@ export async function POST(req: Request) {
     } else if (!isCodeValid) {
       return Response.json(
         {
-          success: true,
+          success: false,
           message: "the given code is wronge",
         },
         { status: 400 }
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
     } else {
       return Response.json(
         {
-          success: true,
+          success: false,
           message: "the code is expired please signup again",
         },
         { status: 400 }

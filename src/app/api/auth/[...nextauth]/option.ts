@@ -3,11 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
 import bcrypt from "bcryptjs";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      id: "intranet-credentials",
-      name: "Two Factor Auth",
+      id: "credentials",
+      name: "credentials",
       credentials: {
         email: { label: "email", type: "email" },
         password: { label: "Password", type: "password" },
