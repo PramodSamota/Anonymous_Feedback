@@ -9,8 +9,8 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
-    console.log("user", user);
-    if (!user || session) {
+    // console.log("user", user);
+    if (!user || !session) {
       return Response.json(
         { success: false, message: "user is not logged in" },
         { status: 401 }

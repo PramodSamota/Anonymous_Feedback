@@ -41,20 +41,28 @@ function SignInPage() {
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        identifier: data.identifier,
+        email: data.email,
         password: data.password,
       });
 
       console.log("result", result);
       if (result?.error) {
-        toast("Error in SignIN");
-      } else {
-        toast("successfully login");
+        // Handle specific errors
+        if (result.error === "CredentialsSignin") {
+          toast.error("Invalid credentials");
+        } else {
+          toast.error(result.error);
+        }
       }
       if (result?.url) {
         router.replace("/dashboard");
       }
-    } catch (error) {}
+    } catch (error) {
+      toast("Error in SignIN");
+      console.error("Error in SignIN of user", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

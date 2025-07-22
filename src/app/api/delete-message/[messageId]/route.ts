@@ -12,7 +12,7 @@ export async function DELETE(
   await dbConnect();
 
   // 1. Extract and validate messageId
-  const { messageId } = params;
+  const { messageId } = await params;
   if (!messageId || !mongoose.Types.ObjectId.isValid(messageId)) {
     return Response.json(
       { success: false, message: "Invalid message ID format" },

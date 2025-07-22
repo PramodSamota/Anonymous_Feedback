@@ -8,41 +8,55 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
-      name: "credentials",
+      name: "Credentials", // Changed to standard capitalization
       credentials: {
-        email: { label: "email", type: "email" },
+        email: { label: "Email", type: "email", placeholder: "your@email.com" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(credentials) {
+        // Removed explicit typing for cleaner code
         await dbConnect();
         try {
+          // More robust validation
+          if (!credentials?.email?.trim() || !credentials?.password?.trim()) {
+            throw new Error("Both email and password are required");
+          }
+
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
+              { email: credentials.email.trim().toLowerCase() }, // Normalize email
+              { username: credentials.email.trim() }, // Case-sensitive username
             ],
-          });
+          }).select("+password"); // Ensure password field is included
 
           if (!user) {
-            throw new Error("no User found for this email");
+            throw new Error("Invalid credentials");
           }
 
           if (!user.isVerified) {
-            throw new Error("please verify email before");
+            throw new Error("Please verify your email before logging in");
           }
 
-          const isPasswordMatch = bcrypt.compare(
+          const isPasswordMatch = await bcrypt.compare(
             credentials.password,
             user.password
           );
 
           if (!isPasswordMatch) {
-            throw new Error("Crenditals is wronge");
+            throw new Error("Invalid credentials"); // Generic message for security
           }
 
-          return user;
+          // Clean user object for session
+          return {
+            id: user._id.toString(), // Must be 'id' (not '_id')
+            _id: user._id.toString(), // Also include as _id if needed
+            email: user.email,
+            username: user.username,
+            isVerified: user.isVerified,
+          };
         } catch (error: any) {
-          throw new Error("error in options next auth", error);
+          console.error("Authorization error:", error); // Log for debugging
+          throw new Error(error.message || "Authentication failed");
         }
       },
     }),
@@ -50,7 +64,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString();
+        token.id = user.id; // Use 'id' instead of '_id' for consistency
+        token._id = user._id; // Optional, only if you need it
         token.username = user.username;
         token.email = user.email;
         token.isVerified = user.isVerified;
@@ -59,19 +74,22 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        // session.user._id = token._id;
-        // session.user.isVerified = token.isVerified;
-        // session.user.username = token.username;
-        // session.user.email = token.email;
+        session.user.id = token.id;
+        session.user._id = token._id;
+        session.user.username = token.username;
+        session.user.email = token.email;
+        session.user.isVerified = token.isVerified as boolean;
       }
       return session;
     },
   },
   pages: {
-    signIn: "singIn",
+    signIn: "/sign-in",
+    error: "/sign-in?error=true", // Added error parameter
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days session
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
