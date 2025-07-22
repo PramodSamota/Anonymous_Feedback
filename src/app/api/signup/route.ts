@@ -93,8 +93,12 @@ export async function POST(req: Request) {
       { success: true, message: "user Signup successfully. please verify" },
       { status: 201 }
     );
-  } catch (error: any) {
-    console.log("Signup Failed", error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.log("Signup Failed", error.message);
+    } else {
+      console.log("Signup Failed", error);
+    }
     return Response.json(
       { success: false, message: "failed to singup" },
       {
