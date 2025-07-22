@@ -17,7 +17,6 @@ import { Message } from "@/models/User.model";
 import axios from "axios";
 import { toast } from "sonner";
 import { format } from "date-fns"; // For date formatting
-import { useEffect } from "react";
 
 type MessageCardProps = {
   message: Message;
@@ -29,7 +28,7 @@ function MessageCard({ message, onMessageDelete }: MessageCardProps) {
     try {
       await axios.delete(`/api/delete-message/${message._id}`);
       toast.success("Message deleted successfully");
-      onMessageDelete(message._id);
+      onMessageDelete(message._id as string);
     } catch (error) {
       toast.error("Failed to delete message");
       console.error("Delete error:", error);

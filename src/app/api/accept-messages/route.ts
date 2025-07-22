@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       { success: true, message: "status changed successfully", updatedUser },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
     return Response.json(
       {
         success: false,
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   await dbConnect();
   try {
     const session = await getServerSession(authOptions);
@@ -74,7 +74,7 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
     return Response.json(
       {
         success: false,

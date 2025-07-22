@@ -50,13 +50,15 @@ function SignUpPage() {
           );
 
           setUsernameMessage(res.data.message);
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (axios.isAxiosError(error)) {
             console.log(error.response?.data.message); // Server response (if any)
             setUsernameMessage(error.response?.data.message);
-          } else {
+          } else if (error instanceof Error) {
             // Non-Axios error (e.g., network failure)
             console.log("Non-Axios error:", error.message);
+          } else {
+            console.log("Unknown error:", error);
           }
         } finally {
           setIsCheckingUsername(false);

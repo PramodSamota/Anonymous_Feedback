@@ -25,14 +25,14 @@ import { messageSchema } from "@/schemas/MessageSchema";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-const specialChar = "||";
+// const specialChar = "||";
 
-const parseStringMessages = (messageString: string): string[] => {
-  return messageString.split(specialChar);
-};
+// const parseStringMessages = (messageString: string): string[] => {
+//   return messageString.split(specialChar);
+// };
 
-const initialMessageString =
-  "What's your favorite movie?||Do you have any pets?||What's your dream job?";
+// const initialMessageString =
+//   "What's your favorite movie?||Do you have any pets?||What's your dream job?";
 
 export default function SendMessage() {
   const params = useParams<{ username: string }>();

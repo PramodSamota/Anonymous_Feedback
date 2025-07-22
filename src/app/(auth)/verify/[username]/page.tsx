@@ -49,7 +49,7 @@ function VerifyAccount() {
       console.error("Error in Signup of user", error);
       const axisoError = error as AxiosError;
       console.log("axiosError", axisoError.response?.data);
-      toast(axisoError.response?.data.message);
+      toast("failed to verify user");
     } finally {
       setLoading(false);
     }

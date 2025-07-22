@@ -22,12 +22,18 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Both email and password are required");
           }
 
-          const user = await UserModel.findOne({
+          const user = (await UserModel.findOne({
             $or: [
               { email: credentials.email.trim().toLowerCase() }, // Normalize email
               { username: credentials.email.trim() }, // Case-sensitive username
             ],
-          }).select("+password"); // Ensure password field is included
+          }).select("+password")) as {
+            _id: string;
+            email: string;
+            username: string;
+            password: string;
+            isVerified: boolean;
+          } | null; // Ensure correct typing
 
           if (!user) {
             throw new Error("Invalid credentials");
@@ -48,15 +54,18 @@ export const authOptions: NextAuthOptions = {
 
           // Clean user object for session
           return {
-            id: user._id.toString(), // Must be 'id' (not '_id')
-            _id: user._id.toString(), // Also include as _id if needed
+            id: user._id.toString() as string, // Must be 'id' (not '_id')
+            _id: user._id.toString() as string, // Also include as _id if needed
             email: user.email,
             username: user.username,
-            isVerified: user.isVerified,
+            isVerified: user.isVerified ? "true" : "false", // Ensure string type
           };
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error("Authorization error:", error); // Log for debugging
-          throw new Error(error.message || "Authentication failed");
+          if (error instanceof Error) {
+            throw new Error(error.message || "Authentication failed");
+          }
+          throw new Error("Authentication failed");
         }
       },
     }),
@@ -74,11 +83,13 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
-        session.user._id = token._id;
-        session.user.username = token.username;
+        session.user.id = typeof token.id === "string" ? token.id : undefined;
+        session.user._id =
+          typeof token._id === "string" ? token._id : undefined;
+        session.user.username =
+          typeof token.username === "string" ? token.username : undefined;
         session.user.email = token.email;
-        session.user.isVerified = token.isVerified as boolean;
+        session.user.isVerified = token.isVerified === "true"; // Convert string to boolean
       }
       return session;
     },

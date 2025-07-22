@@ -1,6 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
-import { SignUpSchema, userNameSchema } from "@/schemas/SignUpSchema";
+import { userNameSchema } from "@/schemas/SignUpSchema";
 export async function GET(req: Request) {
   await dbConnect();
   try {
