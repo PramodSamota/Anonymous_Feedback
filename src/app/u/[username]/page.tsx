@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 export default function SendMessage() {
   const params = useParams<{ username: string }>();
-  const username = params.username;
+  const username = Array.isArray(params.username) ? params.username[0] : params.username;
 
   // const {
   //   complete,

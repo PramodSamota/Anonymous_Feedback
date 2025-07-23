@@ -13,7 +13,7 @@ interface DeleteResponse {
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { messageId: string } }
+  { params }: { params: Promise<{ messageId: string }> }
 ): Promise<NextResponse<DeleteResponse>> {
   // Verify HTTP method
   if (request.method !== "DELETE") {
@@ -26,7 +26,8 @@ export async function DELETE(
   await dbConnect();
 
   // 1. Extract and validate messageId
-  const messageId = params.messageId?.trim();
+  const resolvedParams = await params;
+  const messageId = resolvedParams.messageId?.trim();
   if (!messageId || !mongoose.Types.ObjectId.isValid(messageId)) {
     return NextResponse.json(
       { success: false, message: "Invalid message ID format" },
