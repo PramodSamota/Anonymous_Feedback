@@ -88,9 +88,9 @@ function DashboardPage() {
   useEffect(() => {
     if (session?.user) {
       fetchMessages();
-      fetchAcceptMessages();
+      // fetchAcceptMessages();
     }
-  }, [session, fetchMessages, fetchAcceptMessages]);
+  }, [session, fetchMessages]);
 
   if (!session?.user) {
     return (

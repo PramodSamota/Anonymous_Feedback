@@ -4,17 +4,31 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User.model";
 import { User } from "next-auth";
 import mongoose, { Types } from "mongoose";
+import { NextResponse } from "next/server";
+
+interface DeleteResponse {
+  success: boolean;
+  message: string;
+}
 
 export async function DELETE(
   request: Request,
   { params }: { params: { messageId: string } }
-) {
+): Promise<NextResponse<DeleteResponse>> {
+  // Verify HTTP method
+  if (request.method !== "DELETE") {
+    return NextResponse.json(
+      { success: false, message: "Method not allowed" },
+      { status: 405 }
+    );
+  }
+
   await dbConnect();
 
   // 1. Extract and validate messageId
-  const { messageId } = await params;
+  const messageId = params.messageId?.trim();
   if (!messageId || !mongoose.Types.ObjectId.isValid(messageId)) {
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: "Invalid message ID format" },
       { status: 400 }
     );
@@ -25,7 +39,7 @@ export async function DELETE(
   const user = session?.user as User;
 
   if (!user?._id || !session) {
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: "Unauthorized access" },
       { status: 401 }
     );
@@ -36,44 +50,35 @@ export async function DELETE(
     const userId = new Types.ObjectId(user._id);
     const msgId = new Types.ObjectId(messageId);
 
-    // 4. Debugging: Log the IDs before query
-    console.log(`Attempting to delete message ${msgId} for user ${userId}`);
-
-    // 5. Execute deletion
+    // 4. Execute deletion
     const updateResult = await UserModel.updateOne(
       {
         _id: userId,
-        "messages._id": msgId, // Ensures the message belongs to user
+        "messages._id": msgId,
       },
       { $pull: { messages: { _id: msgId } } }
     );
 
-    // 6. Handle results
+    // 5. Handle results
     if (updateResult.matchedCount === 0) {
-      console.log("No user/message found matching criteria");
-      return Response.json(
+      return NextResponse.json(
         { success: false, message: "Message not found" },
         { status: 404 }
       );
     }
 
     if (updateResult.modifiedCount === 0) {
-      console.log(
-        "Message exists but wasn't deleted (possible data inconsistency)"
-      );
-      return Response.json(
+      return NextResponse.json(
         { success: false, message: "Message deletion failed" },
         { status: 500 }
       );
     }
 
-    // 7. Success response
-    return Response.json(
+    return NextResponse.json(
       { success: true, message: "Message deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    // 8. Detailed error handling
     console.error("Deletion error:", error);
 
     let errorMessage = "Internal server error";
@@ -83,7 +88,7 @@ export async function DELETE(
       errorMessage = "Document not found";
     }
 
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: errorMessage },
       { status: 500 }
     );

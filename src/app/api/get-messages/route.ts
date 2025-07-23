@@ -46,7 +46,7 @@ export async function GET() {
     ]);
 
     console.log("user", user);
-    if (!user || user.length === 0) {
+    if (!user) {
       return Response.json(
         {
           success: false,
@@ -56,10 +56,14 @@ export async function GET() {
       );
     }
 
-    if (!user[0].messages || user[0].messages.length === 0) {
+    if (
+      user.length === 0 ||
+      !user[0].messages ||
+      user[0].messages.length === 0
+    ) {
       return Response.json(
         {
-          success: false,
+          success: true,
           message: "User has no messages",
         },
         { status: 200 } // 200 because user exists, just no messages
