@@ -45,7 +45,7 @@ function SignInPage() {
         password: data.password,
       });
 
-      console.log("result", result);
+      console.log("resultInSignIN", result);
       if (result?.error) {
         // Handle specific errors
         if (result.error === "CredentialsSignin") {
@@ -54,8 +54,10 @@ function SignInPage() {
           toast.error(result.error);
         }
       }
+      // router.push("/dashboard");
       if (result?.url) {
-        router.replace("/dashboard");
+        // router.replace("/dashboard");
+        toast("SignIN successfully");
       }
     } catch (error) {
       toast("Error in SignIN");
@@ -117,7 +119,7 @@ function SignInPage() {
           <p>
             {" "}
             Not a member please create Account?{""}
-            <Link href="/singup" className="text-blue-600 hover:text-blue-800">
+            <Link href="/signup" className="text-blue-600 hover:text-blue-800">
               Sign Up
             </Link>
           </p>
