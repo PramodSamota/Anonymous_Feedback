@@ -43,6 +43,7 @@ function SignInPage() {
         redirect: false,
         email: data.email,
         password: data.password,
+        callbackUrl: "/dashboard",
       });
 
       console.log("resultInSignIN", result);
@@ -58,6 +59,9 @@ function SignInPage() {
       if (result?.url) {
         // router.replace("/dashboard");
         toast("SignIN successfully");
+
+        // Force full page reload to ensure middleware runs
+        window.location.href = result.url;
       }
     } catch (error) {
       toast("Error in SignIN");
