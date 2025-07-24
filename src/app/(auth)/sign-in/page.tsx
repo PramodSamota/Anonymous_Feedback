@@ -46,7 +46,6 @@ function SignInPage() {
         callbackUrl: "/dashboard",
       });
 
-      console.log("resultInSignIN", result);
       if (result?.error) {
         // Handle specific errors
         if (result.error === "CredentialsSignin") {
@@ -54,14 +53,10 @@ function SignInPage() {
         } else {
           toast.error(result.error);
         }
-      }
-      // router.push("/dashboard");
-      if (result?.url) {
-        // router.replace("/dashboard");
-        toast("SignIN successfully");
-
-        // Force full page reload to ensure middleware runs
-        window.location.href = result.url;
+      } else if (result?.ok) {
+        toast.success("Signed in successfully");
+        // Use Next.js router for better middleware integration
+        router.push("/dashboard");
       }
     } catch (error) {
       toast("Error in SignIN");

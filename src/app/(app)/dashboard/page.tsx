@@ -8,6 +8,7 @@ import { Message, User } from "@/models/User.model";
 import axios, { AxiosError } from "axios";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -18,7 +19,6 @@ function DashboardPage() {
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
   const { data: session } = useSession();
-  console.log("data", session);
   const form = useForm({ defaultValues: { acceptMessages: false } });
 
   const { register, watch, setValue } = form;
