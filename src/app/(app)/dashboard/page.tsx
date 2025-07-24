@@ -18,7 +18,8 @@ function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const form = useForm({ defaultValues: { acceptMessages: false } });
 
   const { register, watch, setValue } = form;
@@ -85,17 +86,34 @@ function DashboardPage() {
     }
   };
 
+  // Redirect to sign-in if not authenticated
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/sign-in");
+      return;
+    }
+    
     if (session?.user) {
       fetchMessages();
       fetchAcceptMessages();
     }
-  }, [session, fetchMessages, fetchAcceptMessages]);
+  }, [session, status, router, fetchMessages, fetchAcceptMessages]);
 
+  // Show loading while session is being determined
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="text-lg ml-2">Loading...</p>
+      </div>
+    );
+  }
+
+  // If no session and not loading, this shouldn't render due to useEffect redirect
   if (!session?.user) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-lg">Please login to view dashboard</p>
+        <p className="text-lg">Redirecting to login...</p>
       </div>
     );
   }

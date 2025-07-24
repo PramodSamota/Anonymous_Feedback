@@ -46,20 +46,25 @@ function SignInPage() {
         callbackUrl: "/dashboard",
       });
 
+      console.log("SignIn result:", result);
+
       if (result?.error) {
         // Handle specific errors
         if (result.error === "CredentialsSignin") {
-          toast.error("Invalid credentials");
+          toast.error("Invalid credentials. Please check your email/username and password.");
         } else {
           toast.error(result.error);
         }
       } else if (result?.ok) {
         toast.success("Signed in successfully");
-        // Use Next.js router for better middleware integration
-        router.push("/dashboard");
+        // Force a small delay to ensure session is updated
+        setTimeout(() => {
+          router.push("/dashboard");
+          router.refresh(); // Refresh to ensure middleware runs
+        }, 100);
       }
     } catch (error) {
-      toast("Error in SignIN");
+      toast.error("An unexpected error occurred during sign in");
       console.error("Error in SignIN of user", error);
     } finally {
       setIsSubmitting(false);
